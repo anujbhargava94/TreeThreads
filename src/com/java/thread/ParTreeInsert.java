@@ -4,12 +4,10 @@ import java.util.Random;
 
 public class ParTreeInsert {
 	public static void main(String[] args) {
-		Tree tr = new Tree(5000);   
-		//replace by 'new ParTree(5000)' for A4 Part 1
+		Tree tr = new ParTree(5000);
+		// replace by 'new ParTree(5000)' for A4 Part 1
 		int N = 5;
-		InsertNums[] threads = 
-			  { new InsertNums(tr), new InsertNums(tr), 
-			    new InsertNums(tr), new InsertNums(tr),
+		InsertNums[] threads = { new InsertNums(tr), new InsertNums(tr), new InsertNums(tr), new InsertNums(tr),
 				new InsertNums(tr) };
 		try {
 			System.out.println("Start Parallel Insert ...");
@@ -35,7 +33,7 @@ class InsertNums extends Thread {
 
 	public void run() {
 		Random r = new Random();
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 2; i++)
 			tr.insert(r.nextInt(10000));
 		tr = null;
 	}
@@ -71,10 +69,10 @@ class Tree {
 		if (right != null)
 			right.print();
 	}
-	
+
 	protected int value;
 	protected Tree left, right;
-	
+
 }
 
 class ParTree extends Tree {
@@ -82,19 +80,50 @@ class ParTree extends Tree {
 	public ParTree(int n) {
 		super(n);
 	}
-	
+
 	public void insert(int n) {
-		 // fill in code
+		// fill in code
+		if (value == n) {
+			return;
+		}
+		this.lock();
+		if (value < n) {
+			if (right == null) {
+				right = new Tree(n);
+				this.unlock();
+			} else {
+				this.unlock();
+				right.insert(n);
+			}
+		} else if (left == null) {
+			left = new Tree(n);
+			this.unlock();
+		} else {
+			this.unlock();
+			left.insert(n);
+		}
+
 	}
 
 	synchronized void lock() {
 		// fill in code
+		while(this.locked) {
+			try {
+				wait();
+			}
+			catch(Exception e) {
+				
+			}
+		}
+		this.locked = true;
 	}
 
 	synchronized void unlock() {
 		// fill in code
+		this.locked = false;
+		notify();
 	}
 
+	private boolean locked = false;
 	// add any fields for ParTree
 }
-
