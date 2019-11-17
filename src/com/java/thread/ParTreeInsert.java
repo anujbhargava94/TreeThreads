@@ -89,14 +89,14 @@ class ParTree extends Tree {
 		this.lock();
 		if (value < n) {
 			if (right == null) {
-				right = new Tree(n);
+				right = new ParTree(n);
 				this.unlock();
 			} else {
 				this.unlock();
 				right.insert(n);
 			}
 		} else if (left == null) {
-			left = new Tree(n);
+			left = new ParTree(n);
 			this.unlock();
 		} else {
 			this.unlock();
